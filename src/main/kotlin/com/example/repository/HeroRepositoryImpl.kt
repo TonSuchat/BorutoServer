@@ -3,6 +3,7 @@ package com.example.repository
 import com.example.constants.*
 import com.example.models.ApiResponse
 import com.example.models.Hero
+import io.ktor.util.*
 
 class HeroRepositoryImpl : HeroRepository {
     override val heroes: Map<Int, List<Hero>>
@@ -34,6 +35,30 @@ class HeroRepositoryImpl : HeroRepository {
         )
     }
 
+    override suspend fun searchHeroes(name: String?): ApiResponse {
+        return ApiResponse(
+            success = true,
+            message = "ok",
+            heroes = findHeroes(name)
+        )
+    }
+
+    private fun findHeroes(query: String?): List<Hero> {
+        return if (query.isNullOrEmpty()) {
+            emptyList()
+        } else {
+            val founded = mutableListOf<Hero>()
+            heroes.forEach { (_, heroes) ->
+                heroes.forEach { hero ->
+                    if (hero.name.toLowerCasePreservingASCIIRules().contains(query.toLowerCasePreservingASCIIRules())) {
+                        founded.add(hero)
+                    }
+                }
+            }
+            founded
+        }
+    }
+
     private fun calculatePrevPage(page: Int): Int? {
         if (page in 2..5) {
             return page.minus(1)
@@ -46,9 +71,5 @@ class HeroRepositoryImpl : HeroRepository {
             return page.plus(1)
         }
         return null
-    }
-
-    override suspend fun searchHeroes(name: String): ApiResponse {
-        TODO("Not yet implemented")
     }
 }
