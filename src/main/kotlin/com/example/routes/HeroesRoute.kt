@@ -17,11 +17,6 @@ fun Route.heroesRoute() {
             require(page in 1..5)
             val response = heroRepository.getAllHeroes(page)
             call.respond(message = response, status = HttpStatusCode.OK)
-        } catch (e: NumberFormatException) {
-            call.respond(
-                message = ApiResponse(success = false, message = "Only a number allowed."),
-                status = HttpStatusCode.BadRequest
-            )
         } catch (e: IllegalArgumentException) {
             call.respond(
                 message = ApiResponse(success = false, message = "Heroes not found."),
